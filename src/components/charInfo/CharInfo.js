@@ -1,15 +1,15 @@
 import {useEffect, useState} from "react";
-import ErrorMessage from "../errorMessage/ErrorMessage";
-import Spinner from "../spinner/Spinner";
-import Skeleton from "../skeleton/Skeleton";
 import {useMarvelService} from "../../services/MarvelService";
-import './charInfo.scss';
 import {NavLink} from "react-router-dom";
+
+import setContent from "../../utils/setContent";
+
+import './charInfo.scss';
 
 
 const CharInfo = ({charId}) => {
     const [char, setChar] = useState(null);
-    const {loading,error,clearError,getCharacter,getComics} = useMarvelService();
+    const {process,setProcess,clearError,getCharacter} = useMarvelService();
 
     useEffect(() => {
         updateChar()
@@ -24,25 +24,18 @@ const CharInfo = ({charId}) => {
         if (!charId) return;
         clearError()
         getCharacter(charId)
-            .then(onCharLoaded);
+            .then(onCharLoaded)
+            .then(() => setProcess('confirmed'))
     }
-
-    const skeleton = char || loading || error ? null : <Skeleton/>;
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <Spinner size={100}/> : null;
-    const content = !(loading || errorMessage || !char) ? <View char={char}/> : null;
 
     return (
         <div className="char__info">
-            {skeleton}
-            {errorMessage}
-            {spinner}
-            {content}
+            {setContent(process, View, char)}
         </div>
     )
 }
 
-const View = ({char}) => {
+function View ({data}) {
     const {
         name,
         description,
@@ -51,7 +44,7 @@ const View = ({char}) => {
         homepage,
         wiki,
         comics,
-    } = char;
+    } = data;
 
     const comicsRender = [];
     for (let i = 0; i < comics.length; i++) {

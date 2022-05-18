@@ -4,6 +4,7 @@ import CharList from "../charList/CharList";
 import CharInfo from "../charInfo/CharInfo";
 import decoration from "../../resources/img/vision.png";
 import {useState} from "react";
+import {CharSearchForm} from "../charSearchForm/charSearchForm";
 
 
 export default function MainPage() {
@@ -22,7 +23,10 @@ export default function MainPage() {
                     <CharList onCharSelected={onCharSelected}/>
                 </ErrorBoundary>
                 <ErrorBoundary>
-                    <CharInfo charId={selectedChar}/>
+                    <div style={{position: 'sticky', top: 30}}>
+                        <CharInfo charId={selectedChar}/>
+                        <CharSearchForm/>
+                    </div>
                 </ErrorBoundary>
             </div>
             <img className="bg-decoration" src={decoration} alt="vision"/>

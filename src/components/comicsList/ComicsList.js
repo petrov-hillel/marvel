@@ -5,12 +5,25 @@ import ErrorMessage from "../errorMessage/ErrorMessage";
 import './comicsList.scss';
 import {NavLink} from "react-router-dom";
 
+function setContent(process, Component, newItemLoading) {
+    switch (process) {
+        case 'loading':
+            return newItemLoading ? <Component/> : <Spinner/>
+        case 'error' :
+            return <ErrorMessage/>
+        case 'waiting' :
+            return <Spinner/>
+        case 'confirmed' :
+            return <Component/>
+    }
+}
+
 const ComicsList = () => {
     const [list, setList] = useState([])
     const [offset, setOffset] = useState(210)
     const [newItemLoading, setNewItemLoading] = useState(false);
 
-    const {loading, error, getAllComics} = useMarvelService()
+    const {process, setProcess, getAllComics} = useMarvelService()
 
     useEffect(() => {
         onRequest(offset, true)
@@ -21,6 +34,7 @@ const ComicsList = () => {
 
         getAllComics(offset)
             .then(onListLoaded)
+            .then(() => setProcess('confirmed'))
     }
 
     const onListLoaded = (newList) => {
@@ -49,19 +63,12 @@ const ComicsList = () => {
         )
     }
 
-    const items = renderItems(list);
-    const spinner = loading && !newItemLoading ? <Spinner size={150}/> : null;
-    const errorMessage = error ? <ErrorMessage/> : null;
-
     return (
         <div className="comics__list">
-            {spinner}
-            {errorMessage}
-            {items}
+            {setContent(process, () => renderItems(list), newItemLoading)}
             <button className="button button__main button__long"
                     disabled={newItemLoading}
                     onClick={() => onRequest(offset)}
-
             >
                 <div className="inner">
                     {newItemLoading ? <Spinner size={20}/> : 'load more'}
